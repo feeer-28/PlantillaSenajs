@@ -55,6 +55,27 @@ export default function EventForm({ initial, onClose, onSaved }) {
     setError('')
     setLoading(true)
     try {
+      const all = await AdminAPI.eventos()
+      const eventos = Array.isArray(all) ? all : []
+      const start = new Date(form.fecha_inicio)
+      const end = new Date(form.fecha_fin)
+      const currentId = initial ? (initial.ideventos || initial.id) : null
+      const selectedArtists = new Set(form.artistas.map(Number))
+      const conflict = eventos.find(ev => {
+        const evId = ev.ideventos || ev.id
+        if (currentId && evId === currentId) return false
+        const evStart = new Date(ev.fecha_inicio)
+        const evEnd = new Date(ev.fecha_fin)
+        const overlap = start < evEnd && end > evStart
+        if (!overlap) return false
+        const evArtists = (ev.artistas || []).map(a => a.idartista || a).map(Number)
+        return evArtists.some(a => selectedArtists.has(a))
+      })
+      if (conflict) {
+        setError('Conflicto de horario: uno o más artistas ya están asignados a otro evento en ese rango de tiempo')
+        setLoading(false)
+        return
+      }
       const payload = {
         ideventos: form.ideventos ? Number(form.ideventos) : undefined,
         nombre_evento: form.nombre_evento,
@@ -73,7 +94,11 @@ export default function EventForm({ initial, onClose, onSaved }) {
       }
       onSaved?.()
     } catch (err) {
-      setError(err.message || 'Error al guardar')
+      if (err && err.status === 409) {
+        setError((err.data?.message) || 'Conflicto de horario al asociar artistas con el evento')
+      } else {
+        setError(err.message || 'Error al guardar')
+      }
     } finally {
       setLoading(false)
     }
@@ -99,11 +124,11 @@ export default function EventForm({ initial, onClose, onSaved }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-sm text-slate-600">Fecha inicio</label>
-          <input type="date" value={form.fecha_inicio} onChange={e=>setField('fecha_inicio', e.target.value)} required className="mt-1 w-full rounded-lg border px-3 py-2" />
+          <input type="datetime-local" value={form.fecha_inicio} onChange={e=>setField('fecha_inicio', e.target.value)} required className="mt-1 w-full rounded-lg border px-3 py-2" />
         </div>
         <div>
           <label className="block text-sm text-slate-600">Fecha fin</label>
-          <input type="date" value={form.fecha_fin} onChange={e=>setField('fecha_fin', e.target.value)} required className="mt-1 w-full rounded-lg border px-3 py-2" />
+          <input type="datetime-local" value={form.fecha_fin} onChange={e=>setField('fecha_fin', e.target.value)} required className="mt-1 w-full rounded-lg border px-3 py-2" />
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

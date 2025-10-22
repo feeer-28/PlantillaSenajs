@@ -7,6 +7,8 @@ import Register from './pages/auth/Register.jsx'
 import AdminLayout from './layouts/AdminLayout.jsx'
 import AdminEvents from './pages/admin/Events.jsx'
 import AdminArtists from './pages/admin/Artists.jsx'
+import AdminLocalities from './pages/admin/Localities.jsx'
+import AdminTicketing from './pages/admin/Ticketing.jsx'
 import UserLayout from './layouts/UserLayout.jsx'
 import UserEvents from './pages/user/Events.jsx'
 import UserHistory from './pages/user/History.jsx'
@@ -21,10 +23,16 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
+        {/* Rutas públicas de eventos */}
+        <Route path="/events" element={<UserEvents />} />
+        <Route path="/events/:id" element={<EventDetail />} />
+
         <Route path="/admin" element={<ProtectedRoute role="administrador"><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="events" replace />} />
           <Route path="events" element={<AdminEvents />} />
           <Route path="artists" element={<AdminArtists />} />
+          <Route path="localities" element={<AdminLocalities />} />
+          <Route path="ticketing" element={<AdminTicketing />} />
         </Route>
 
         <Route path="/user" element={<ProtectedRoute><UserLayout /></ProtectedRoute>}>

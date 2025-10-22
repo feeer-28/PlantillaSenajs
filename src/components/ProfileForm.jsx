@@ -3,7 +3,14 @@ import { AuthAPI } from '../lib/api'
 
 export default function ProfileForm({ onClose, onSaved }) {
   const stored = JSON.parse(localStorage.getItem('user') || 'null')
-  const [form, setForm] = useState({ nombre: stored?.nombre || '', password: '' })
+  const [form, setForm] = useState({
+    nombre: stored?.nombre || '',
+    apellidos: stored?.apellidos || '',
+    tipodocumento: stored?.tipodocumento || 'CC',
+    documento: stored?.documento || '',
+    email: stored?.email || '',
+    password: '',
+  })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -15,7 +22,13 @@ export default function ProfileForm({ onClose, onSaved }) {
     setError('')
     setLoading(true)
     try {
-      const payload = { nombre: form.nombre }
+      const payload = {
+        nombre: form.nombre,
+        apellidos: form.apellidos,
+        tipodocumento: form.tipodocumento,
+        documento: form.documento,
+        email: form.email,
+      }
       if (form.password) payload.password = form.password
       const updated = await AuthAPI.update(stored.idusuario, payload)
       const user = { ...stored, ...updated }
@@ -32,8 +45,29 @@ export default function ProfileForm({ onClose, onSaved }) {
     <form onSubmit={onSubmit} className="space-y-3">
       {error && <div className="text-red-600 text-sm">{error}</div>}
       <div>
-        <label className="block text-sm text-slate-600">Nombre</label>
+        <label className="block text-sm text-slate-600">Nombres</label>
         <input value={form.nombre} onChange={e=>setField('nombre', e.target.value)} required className="mt-1 w-full rounded-lg border px-3 py-2" />
+      </div>
+      <div>
+        <label className="block text-sm text-slate-600">Apellidos</label>
+        <input value={form.apellidos} onChange={e=>setField('apellidos', e.target.value)} required className="mt-1 w-full rounded-lg border px-3 py-2" />
+      </div>
+      <div>
+        <label className="block text-sm text-slate-600">Tipo de documento</label>
+        <select value={form.tipodocumento} onChange={e=>setField('tipodocumento', e.target.value)} required className="mt-1 w-full rounded-lg border px-3 py-2">
+          <option value="CC">Cedula</option>
+          <option value="TI">Tarjeta de identidad</option>
+          <option value="CE">Cedula extranjera</option>
+        </select>
+      </div>
+      <div>
+        <label className="block text-sm text-slate-600">Número de documento</label>
+        <input value={form.documento} onChange={e=>setField('documento', e.target.value)} required className="mt-1 w-full rounded-lg border px-3 py-2" />
+      </div>
+    
+      <div>
+        <label className="block text-sm text-slate-600">Correo</label>
+        <input type="email" value={form.email} onChange={e=>setField('email', e.target.value)} required className="mt-1 w-full rounded-lg border px-3 py-2" />
       </div>
       <div>
         <label className="block text-sm text-slate-600">Nueva contraseña (opcional)</label>

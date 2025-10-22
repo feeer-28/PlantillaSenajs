@@ -36,31 +36,9 @@ export const AuthAPI = {
     return { user: data.user, token }
   },
   async register(payload) {
-    async function genId() {
-      const MIN = 100000
-      const MAX = 2000000000
-      return Math.floor(MIN + Math.random() * (MAX - MIN))
-    }
-    let attempts = 0
-    let lastErr
-    while (attempts < 3) {
-      try {
-        const body = { ...payload }
-        if (!body.idusuario) body.idusuario = await genId()
-        const data = await apiFetch('/auth/register', { method: 'POST', body })
-        return { user: data.user, token: data.token }
-      } catch (err) {
-        lastErr = err
-        const msg = (err?.data?.message || '').toLowerCase()
-        const duplicate = msg.includes('duplicate') || msg.includes('exists') || msg.includes('único') || err.status === 409
-        if (duplicate) {
-          attempts++
-          continue
-        }
-        throw err
-      }
-    }
-    throw lastErr || new Error('No se pudo registrar')
+    const body = { ...payload }
+    const data = await apiFetch('/auth/register', { method: 'POST', body })
+    return { user: data.user, token: data.token }
   },
   async logout() {
     return apiFetch('/auth/logout', { method: 'POST', auth: true })
@@ -88,6 +66,18 @@ export const AdminAPI = {
   actualizarArtista(id, body) { return apiFetch(`/artistas/${id}`, { method: 'PUT', body, auth: true }) },
   desactivarArtista(id) { return apiFetch(`/artistas/${id}/desactivar`, { method: 'PATCH', body: {}, auth: true }) },
   asignarArtistaEvento(body) { return apiFetch('/artistas/asignar-evento', { method: 'POST', body, auth: true }) },
+
+  // Localidades (RF3)
+  localidades() { return apiFetch('/localidades', { auth: true }) },
+  crearLocalidad(body) { return apiFetch('/localidades', { method: 'POST', body, auth: true }) },
+  actualizarLocalidad(id, body) { return apiFetch(`/localidades/${id}`, { method: 'PUT', body, auth: true }) },
+  desactivarLocalidad(id) { return apiFetch(`/localidades/${id}/desactivar`, { method: 'PATCH', body: {}, auth: true }) },
+
+  // Boletería (RF2)
+  boleteria(eventoId) { return apiFetch(`/eventos/${eventoId}/boleteria`, { auth: true }) },
+  crearBoleteria(eventoId, body) { return apiFetch(`/eventos/${eventoId}/boleteria`, { method: 'POST', body, auth: true }) },
+  actualizarBoleteria(id, body) { return apiFetch(`/boleteria/${id}`, { method: 'PUT', body, auth: true }) },
+  eliminarBoleteria(id) { return apiFetch(`/boleteria/${id}`, { method: 'DELETE', auth: true }) },
 }
 
 export const UserAPI = {

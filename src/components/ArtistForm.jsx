@@ -5,6 +5,7 @@ export default function ArtistForm({ initial, onClose, onSaved }) {
   const [form, setForm] = useState({
     idartista: '',
     nombre: '',
+    apellidos: '',
     ciudad: '',
     estado: 'activo',
     genero_musical_idgenero_musical: '',
@@ -28,6 +29,7 @@ export default function ArtistForm({ initial, onClose, onSaved }) {
       setForm({
         idartista: initial.idartista || initial.id || '',
         nombre: initial.nombre || '',
+        apellidos: initial.apellidos || '',
         ciudad: initial.ciudad || '',
         estado: initial.estado || 'activo',
         genero_musical_idgenero_musical: initial.genero_musical_idgenero_musical || initial.genero_musical?.idgenero_musical || '',
@@ -45,6 +47,7 @@ export default function ArtistForm({ initial, onClose, onSaved }) {
       const payload = {
         idartista: form.idartista ? Number(form.idartista) : undefined,
         nombre: form.nombre,
+        apellidos: form.apellidos,
         ciudad: form.ciudad,
         estado: form.estado,
         genero_musical_idgenero_musical: Number(form.genero_musical_idgenero_musical),
@@ -74,6 +77,10 @@ export default function ArtistForm({ initial, onClose, onSaved }) {
       <div>
         <label className="block text-sm text-slate-600">Nombre</label>
         <input value={form.nombre} onChange={e=>setField('nombre', e.target.value)} required className="mt-1 w-full rounded-lg border px-3 py-2" />
+      </div>
+      <div>
+        <label className="block text-sm text-slate-600">Apellidos</label>
+        <input value={form.apellidos} onChange={e=>setField('apellidos', e.target.value)} required className="mt-1 w-full rounded-lg border px-3 py-2" />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
